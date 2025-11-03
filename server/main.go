@@ -43,9 +43,8 @@ func main() {
 		api.GET("/session/:id", handlers.HandleGetSession(store))
 		api.POST("/session/:id/answers", handlers.HandleSubmitAnswers(store))
 		api.GET("/session/:id/next", handlers.HandleGetNextQuestion(store))
-		// TODO: Add AI and generation handlers
-		// api.POST("/session/:id/ai/questions", handlers.HandleGenerateQuestions(store))
-		// api.POST("/session/:id/generate", handlers.HandleGenerateDocument(store))
+		api.POST("/session/:id/ai/questions", handlers.HandleGenerateQuestions(store))
+		api.POST("/session/:id/generate", handlers.HandleGenerateDocument(store))
 	}
 
 	// Start server
