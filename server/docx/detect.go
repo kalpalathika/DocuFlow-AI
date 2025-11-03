@@ -2,40 +2,56 @@ package docx
 
 import (
 	"bytes"
-	"errors"
+	"io"
+	"os"
 	"regexp"
 	"sort"
 
-	"github.com/unidoc/unioffice/document"
+	"github.com/nguyenthenguyen/docx"
 )
 
 var rxVar = regexp.MustCompile(`\{\{[a-zA-Z0-9_.]+\}\}`)
 
 // DetectFields reads a .docx (bytes) and returns unique placeholders without {{ }}
 func DetectFields(docBytes []byte) ([]string, error) {
-	doc, err := document.Read(bytes.NewReader(docBytes), int64(len(docBytes)))
+	// Write bytes to temp file (nguyenthenguyen/docx needs a file path)
+	tmpFile, err := os.CreateTemp("", "docx-*.docx")
 	if err != nil {
-		return nil, errors.New("unable to read .docx (ensure it is a valid Word file)")
+		return nil, err
 	}
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	if _, err := io.Copy(tmpFile, bytes.NewReader(docBytes)); err != nil {
+		return nil, err
+	}
+	tmpFile.Close() // Close before reading
+
+	// Read docx file
+	doc, err := docx.ReadDocxFile(tmpFile.Name())
+	if err != nil {
+		return nil, err
+	}
+	defer doc.Close()
+
+	// Get all text content
+	docText := doc.Editable().GetContent()
+
+	// Find all placeholders
 	set := map[string]struct{}{}
-	for _, p := range doc.Paragraphs() {
-		for _, r := range p.Runs() {
-			text := r.Text()
-			m := rxVar.FindAllString(text, -1)
-			for _, v := range m {
-				// v is like {{client_name}} → strip braces
-				key := v[2 : len(v)-2]
-				set[key] = struct{}{}
-			}
-		}
+	matches := rxVar.FindAllString(docText, -1)
+	for _, v := range matches {
+		// v is like {{client_name}} → strip braces
+		key := v[2 : len(v)-2]
+		set[key] = struct{}{}
 	}
+
+	// Convert to sorted slice
 	fields := make([]string, 0, len(set))
 	for k := range set {
 		fields = append(fields, k)
 	}
 	sort.Strings(fields)
-	if len(fields) == 0 {
-		return fields, nil
-	}
+
 	return fields, nil
 }

@@ -6,6 +6,8 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/you/lexsy-mvp/server/handlers"
+	"github.com/you/lexsy-mvp/server/session"
 )
 
 func main() {
@@ -15,6 +17,9 @@ func main() {
 	}
 
 	r := gin.Default() // Includes Logger and Recovery middleware
+
+	// Initialize session store
+	store := session.NewStore()
 
 	// CORS configuration
 	r.Use(cors.New(cors.Config{
@@ -31,18 +36,17 @@ func main() {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	// API routes group (will be populated as we add handlers)
-	_ = r.Group("/api")
-	// TODO: Uncomment and use when adding handlers:
-	// api := r.Group("/api")
-	// {
-	//   api.POST("/upload", handlers.HandleUpload)
-	//   api.GET("/session/:id", handlers.HandleGetSession)
-	//   api.POST("/session/:id/answers", handlers.HandleSubmitAnswers)
-	//   api.GET("/session/:id/next", handlers.HandleGetNextQuestion)
-	//   api.POST("/session/:id/ai/questions", handlers.HandleGenerateQuestions)
-	//   api.POST("/session/:id/generate", handlers.HandleGenerateDocument)
-	// }
+	// API routes
+	api := r.Group("/api")
+	{
+		api.POST("/upload", handlers.HandleUpload(store))
+		// TODO: Add more handlers as we build them
+		// api.GET("/session/:id", handlers.HandleGetSession(store))
+		// api.POST("/session/:id/answers", handlers.HandleSubmitAnswers(store))
+		// api.GET("/session/:id/next", handlers.HandleGetNextQuestion(store))
+		// api.POST("/session/:id/ai/questions", handlers.HandleGenerateQuestions(store))
+		// api.POST("/session/:id/generate", handlers.HandleGenerateDocument(store))
+	}
 
 	// Start server
 	port := os.Getenv("PORT")
