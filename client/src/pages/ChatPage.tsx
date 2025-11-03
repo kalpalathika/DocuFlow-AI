@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { api, QuestionResponse } from '../lib/api';
+import { api, type QuestionResponse } from '../lib/api';
 
 export default function ChatPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
