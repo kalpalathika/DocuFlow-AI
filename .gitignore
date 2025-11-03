@@ -1,0 +1,38 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/server/tmp/
+/server/dist/
+/server/bin/
+
+# Environment variables
+.env
+.env.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Uploads (temporary files during development)
+/server/uploads/
+
+# Frontend (will be created later)
+/client/node_modules/
+/client/dist/
+/client/.env.local
