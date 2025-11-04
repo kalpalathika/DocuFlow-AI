@@ -7,6 +7,7 @@ type Session struct {
 	ID          string            `json:"id"`
 	OriginalDoc []byte            `json:"-"` // Raw DOCX bytes (not sent to client)
 	Fields      []string          `json:"fields"`
+	FieldTypes  map[string]string `json:"fieldTypes"` // field -> type (text, number, date)
 	Answers     map[string]string `json:"answers"`
 	Questions   map[string]string `json:"questions"` // AI-phrased questions (field -> question)
 	CreatedAt   time.Time         `json:"createdAt"`
@@ -23,6 +24,7 @@ type UploadResponse struct {
 // QuestionResponse is returned when requesting the next question
 type QuestionResponse struct {
 	Field       string `json:"field"`
+	FieldType   string `json:"fieldType"`   // Type: text, number, or date
 	Question    string `json:"question"`
 	IsAIPhrased bool   `json:"isAIPhrased"` // True if AI-generated, false if fallback
 	Progress    int    `json:"progress"`    // Number of answered fields

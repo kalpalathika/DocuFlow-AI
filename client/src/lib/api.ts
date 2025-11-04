@@ -20,6 +20,7 @@ export interface UploadResponse {
 
 export interface QuestionResponse {
   field: string;
+  fieldType: string; // "text", "number", or "date"
   question: string;
   isAIPhrased: boolean;
   progress: number;
@@ -56,6 +57,10 @@ export const api = {
 
     if (!response.ok) {
       const error: ErrorResponse = await response.json();
+      // Check if this is a Gemini quota exhaustion error
+      if (error.error === 'gemini_quota_exhausted') {
+        throw new Error(error.message || 'Gemini free tier quota has been exhausted. Please try again in 2-3 minutes.');
+      }
       throw new Error(error.message || 'Upload failed');
     }
 

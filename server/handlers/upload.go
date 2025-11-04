@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -67,6 +68,14 @@ func HandleUpload(store *session.Store) gin.HandlerFunc {
 		// Detect placeholders in document
 		fields, err := docx.DetectFields(docBytes)
 		if err != nil {
+			// Check if this is a Gemini quota exhaustion error
+			if errors.Is(err, docx.ErrGeminiQuotaExhausted) {
+				c.JSON(http.StatusServiceUnavailable, models.ErrorResponse{
+					Error:   "gemini_quota_exhausted",
+					Message: "Gemini free tier quota has been exhausted. Please try again in 2-3 minutes.",
+				})
+				return
+			}
 			c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 				Error:   "field_detection_error",
 				Message: "Failed to detect fields in document. Error: " + err.Error(),

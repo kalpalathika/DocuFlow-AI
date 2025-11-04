@@ -125,8 +125,15 @@ func HandleGetNextQuestion(store *session.Store) gin.HandlerFunc {
 					question = humanizeFieldName(field)
 				}
 
+				// Get field type (default to "text" if not found)
+				fieldType := "text"
+				if ft, exists := sess.FieldTypes[field]; exists {
+					fieldType = ft
+				}
+
 				c.JSON(http.StatusOK, models.QuestionResponse{
 					Field:       field,
+					FieldType:   fieldType,
 					Question:    question,
 					IsAIPhrased: hasAIQuestion,
 					Progress:    len(sess.Answers),

@@ -31,6 +31,12 @@ type openAIResponse struct {
 	} `json:"choices"`
 }
 
+// fieldMetadata contains AI-generated question and type for a field
+type fieldMetadata struct {
+	Question string `json:"question"`
+	Type     string `json:"type"` // "text", "number", or "date"
+}
+
 // HandleGenerateQuestions generates natural questions for all fields using OpenAI
 func HandleGenerateQuestions(store *session.Store) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -56,8 +62,8 @@ func HandleGenerateQuestions(store *session.Store) gin.HandlerFunc {
 			return
 		}
 
-		// Generate questions for all fields
-		questions, err := generateQuestionsWithAI(sess.Fields, apiKey)
+		// Generate questions and field types for all fields
+		fieldMetadataMap, err := generateQuestionsWithAI(sess.Fields, apiKey)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 				Error:   "ai_generation_failed",
@@ -66,31 +72,38 @@ func HandleGenerateQuestions(store *session.Store) gin.HandlerFunc {
 			return
 		}
 
-		// Update session with AI-generated questions
+		// Update session with AI-generated questions and field types
 		err = store.Update(sessionID, func(s *models.Session) {
-			for field, question := range questions {
-				s.Questions[field] = question
+			for field, metadata := range fieldMetadataMap {
+				s.Questions[field] = metadata.Question
+				s.FieldTypes[field] = metadata.Type
 			}
 		})
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 				Error:   "update_failed",
-				Message: "Failed to save AI-generated questions.",
+				Message: "Failed to save AI-generated questions and types.",
 			})
 			return
+		}
+
+		// Extract just questions for the response
+		questions := make(map[string]string)
+		for field, metadata := range fieldMetadataMap {
+			questions[field] = metadata.Question
 		}
 
 		c.JSON(http.StatusOK, models.GenerateQuestionsResponse{
 			Count:     len(questions),
 			Questions: questions,
-			Message:   "AI questions generated successfully.",
+			Message:   "AI questions and field types generated successfully.",
 		})
 	}
 }
 
-// generateQuestionsWithAI calls OpenAI API to generate natural questions
-func generateQuestionsWithAI(fields []string, apiKey string) (map[string]string, error) {
+// generateQuestionsWithAI calls OpenAI API to generate natural questions and field types
+func generateQuestionsWithAI(fields []string, apiKey string) (map[string]fieldMetadata, error) {
 	// Build prompt
 	prompt := buildPrompt(fields)
 
@@ -100,7 +113,7 @@ func generateQuestionsWithAI(fields []string, apiKey string) (map[string]string,
 		Messages: []openAIMessage{
 			{
 				Role:    "system",
-				Content: "You are a helpful legal assistant that converts technical field names into natural, conversational questions. Always respond with valid JSON only.",
+				Content: "You are a helpful legal assistant that converts technical field names into natural, conversational questions and determines appropriate input types. Always respond with valid JSON only.",
 			},
 			{
 				Role:    "user",
@@ -152,12 +165,12 @@ func generateQuestionsWithAI(fields []string, apiKey string) (map[string]string,
 
 	// Parse the JSON content from AI
 	content := openAIResp.Choices[0].Message.Content
-	var questions map[string]string
-	if err := json.Unmarshal([]byte(content), &questions); err != nil {
-		return nil, fmt.Errorf("failed to parse AI-generated questions: %w", err)
+	var fieldMetadataMap map[string]fieldMetadata
+	if err := json.Unmarshal([]byte(content), &fieldMetadataMap); err != nil {
+		return nil, fmt.Errorf("failed to parse AI-generated field metadata: %w", err)
 	}
 
-	return questions, nil
+	return fieldMetadataMap, nil
 }
 
 // buildPrompt creates the prompt for OpenAI
@@ -167,11 +180,23 @@ func buildPrompt(fields []string) string {
 	return fmt.Sprintf(`I have a legal document with the following placeholder fields:
 - %s
 
-Please convert each field name into a natural, conversational question that I can ask a client.
+For each field, please:
+1. Convert the field name into a natural, conversational question that I can ask a client
+2. Determine the appropriate input type: "text", "number", or "date"
+
 The questions should be friendly, professional, and easy to understand.
 
-Return ONLY a JSON object where keys are the field names and values are the questions.
-Example format: {"field_name": "What is the field name you'd like to use?"}
+Return ONLY a JSON object where keys are the field names and values are objects with "question" and "type" properties.
+Example format:
+{
+  "client_name": {"question": "What is the client's full name?", "type": "text"},
+  "effective_date": {"question": "When should this agreement take effect?", "type": "date"},
+  "contract_amount": {"question": "What is the total contract amount?", "type": "number"}
+}
+
+Use "date" for any date-related fields (dates, birthdays, deadlines, etc.)
+Use "number" for numeric values (amounts, ages, quantities, counts, etc.)
+Use "text" for everything else (names, descriptions, addresses, etc.)
 
 Do not include any explanation, just the JSON object.`, fieldList)
 }

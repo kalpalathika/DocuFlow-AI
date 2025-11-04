@@ -108,15 +108,36 @@ export default function ChatPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
-              <textarea
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Type your answer here..."
-                rows={4}
-                className="w-full bg-gray-800 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                disabled={submitting}
-                autoFocus
-              />
+              {question.fieldType === 'date' ? (
+                <input
+                  type="date"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  className="w-full bg-gray-800 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  disabled={submitting}
+                  autoFocus
+                />
+              ) : question.fieldType === 'number' ? (
+                <input
+                  type="number"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  placeholder="Enter a number..."
+                  className="w-full bg-gray-800 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  disabled={submitting}
+                  autoFocus
+                />
+              ) : (
+                <textarea
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  placeholder="Type your answer here..."
+                  rows={4}
+                  className="w-full bg-gray-800 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                  disabled={submitting}
+                  autoFocus
+                />
+              )}
             </div>
 
             {error && (

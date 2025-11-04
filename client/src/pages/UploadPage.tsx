@@ -34,7 +34,11 @@ export default function UploadPage() {
       const response = await api.uploadDocument(file);
       navigate(`/chat/${response.sessionId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      if (err instanceof Error) {
+        setError(err.message || 'Upload failed');
+      } else {
+        setError('Upload failed');
+      }
     } finally {
       setUploading(false);
     }

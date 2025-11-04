@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/you/lexsy-mvp/server/models"
+	"github.com/you/lexsy-mvp/server/utils"
 )
 
 var (
@@ -34,11 +35,18 @@ func (s *Store) Create(docBytes []byte, fields []string) (*models.Session, error
 		return nil, err
 	}
 
+	// Infer field types
+	fieldTypes := make(map[string]string)
+	for _, field := range fields {
+		fieldTypes[field] = utils.InferFieldType(field)
+	}
+
 	now := time.Now()
 	session := &models.Session{
 		ID:          id,
 		OriginalDoc: docBytes,
 		Fields:      fields,
+		FieldTypes:  fieldTypes,
 		Answers:     make(map[string]string),
 		Questions:   make(map[string]string),
 		CreatedAt:   now,
