@@ -3,7 +3,6 @@ package docx
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,58 +11,6 @@ import (
 
 	"github.com/nguyenthenguyen/docx"
 )
-
-// ErrGeminiQuotaExhausted is returned when Gemini API quota is exhausted
-var ErrGeminiQuotaExhausted = errors.New("gemini_quota_exhausted")
-
-// isGeminiQuotaError checks if an error response indicates Gemini quota exhaustion
-func isGeminiQuotaError(statusCode int, body []byte) bool {
-	// Check for 429 status code (rate limit/quota exceeded)
-	if statusCode == 429 {
-		return true
-	}
-
-	// Check for common quota-related error messages in response body
-	bodyStr := strings.ToLower(string(body))
-	quotaKeywords := []string{
-		"quota",
-		"resource_exhausted",
-		"rate limit",
-		"rate_limit",
-		"quota exceeded",
-		"quota_exceeded",
-	}
-
-	for _, keyword := range quotaKeywords {
-		if strings.Contains(bodyStr, keyword) {
-			return true
-		}
-	}
-
-	// Check for specific Gemini error structure
-	var geminiError struct {
-		Error struct {
-			Message string `json:"message"`
-			Status  string `json:"status"`
-		} `json:"error"`
-	}
-
-	if err := json.Unmarshal(body, &geminiError); err == nil {
-		errorMsg := strings.ToLower(geminiError.Error.Message)
-		errorStatus := strings.ToLower(geminiError.Error.Status)
-		for _, keyword := range quotaKeywords {
-			if strings.Contains(errorMsg, keyword) || strings.Contains(errorStatus, keyword) {
-				return true
-			}
-		}
-		// Check for RESOURCE_EXHAUSTED status
-		if errorStatus == "resource_exhausted" {
-			return true
-		}
-	}
-
-	return false
-}
 
 // FillDocument replaces placeholders with answers in the document using AI-powered smart replacement
 func FillDocument(docBytes []byte, answers map[string]string) ([]byte, error) {
