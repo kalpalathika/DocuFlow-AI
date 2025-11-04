@@ -35,46 +35,11 @@ DocuFlow-AI/
 
 ### Backend
 
-**Go (v1.23)**
-- High-performance, compiled language ideal for API services
-- Strong type safety and excellent concurrency support
-- Minimal memory footprint
-
-**Gin Framework**
-- Lightweight, fast HTTP web framework
-- Excellent JSON handling capabilities
-- Built-in middleware support for CORS, logging, and recovery
-- Minimal boilerplate for RESTful APIs
-
-**nguyenthenguyen/docx**
-- Go library for reading and writing DOCX files
-- Enables programmatic document manipulation
-
-**Gemini API (Google)**
-- AI-powered field detection from document content
-- Intelligent placeholder identification and mapping
-- Natural language processing for document analysis
+Go (v1.23), Gin Framework, nguyenthenguyen/docx, Gemini API (Google)
 
 ### Frontend
 
-**React 19 + TypeScript**
-- Modern, component-based UI framework
-- Type safety for better development experience
-- Excellent developer tools and ecosystem
-
-**Vite**
-- Lightning-fast development server
-- Optimized production builds
-- Modern ES modules support
-
-**Tailwind CSS**
-- Utility-first CSS framework
-- Rapid UI development
-- Responsive design out of the box
-
-**React Router**
-- Client-side routing for single-page application
-- Type-safe navigation
+React 19, TypeScript, Vite, Tailwind CSS, React Router
 
 ## Features
 
