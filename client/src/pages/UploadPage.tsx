@@ -106,8 +106,8 @@ export default function UploadPage() {
           </svg>
 
           {file ? (
-            <div>
-              <p className="font-semibold text-white mb-1">{file.name}</p>
+            <div className="max-w-full">
+              <p className="font-semibold text-white mb-1 truncate">{file.name}</p>
               <p className="text-sm text-gray-400">Click to change file</p>
             </div>
           ) : (

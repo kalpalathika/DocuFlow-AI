@@ -2,6 +2,13 @@
 
 An AI-powered legal document automation platform that simplifies document filling through conversational interfaces. Upload a template document, answer questions naturally, and generate completed documents automatically.
 
+## 🚀 Live Demo
+
+**Frontend:** [https://docu-flow-ai.vercel.app](https://docu-flow-ai.vercel.app)
+**Backend API:** [https://docuflow-ai-99n5.onrender.com](https://docuflow-ai-99n5.onrender.com)
+
+> **Note:** The backend is hosted on Render's free tier and may take 30-60 seconds to wake up on the first request after inactivity.
+
 ## Overview
 
 DocuFlow AI provides a seamless document automation experience by:
