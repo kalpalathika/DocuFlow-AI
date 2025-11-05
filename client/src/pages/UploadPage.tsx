@@ -141,7 +141,7 @@ export default function UploadPage() {
         <div className="mt-8 bg-gray-800 rounded-xl p-5 text-sm text-gray-300">
           <p className="font-semibold text-white mb-3">How it works:</p>
           <ol className="space-y-2 pl-5 list-decimal">
-            <li>Upload your .docx template with placeholders like {`{{client_name}}`}</li>
+            <li>Upload your .docx template with placeholders</li>
             <li>Answer questions in a conversational interface</li>
             <li>Download your completed document</li>
           </ol>
