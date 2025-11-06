@@ -245,6 +245,7 @@ go test ./handlers -v
 ## Future Enhancements
 
 ### Short-term
+- **Unit Testing**: Add comprehensive unit tests for frontend components and API client functions
 - **Database Integration**: Replace in-memory storage with PostgreSQL or MongoDB for persistent session storage
 - **User Authentication**: Add JWT-based authentication for multi-user support
 - **Enhanced Error Handling**: Structured logging and error tracking (e.g., Sentry)
